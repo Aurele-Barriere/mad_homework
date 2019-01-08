@@ -95,16 +95,16 @@ Finally, we can express the algorithm for each process as follows:
 \end{lstlisting}
 
 Where \lstinline{spontaneous_choice} can be true randomly.
-The \lstinline{take_snapshot} method takes a local snaphsot, i.e a copy of \lstinline{state}, \lstinline{sent} and \lstinline{received}. This is then sent to the process in charge of building the global snaphsot.
+The \lstinline{take_snapshot} method takes a local snapshot, i.e a copy of \lstinline{state}, \lstinline{sent} and \lstinline{received}. This is then sent to the process in charge of building the global snapshot.
 
-Let us name, for each proccess $p$, $\mathit{sent}(p)$ the list of messages \lstinline{sent} at the time of the snaphsot, $\mathit{received}(p)$ the list \lstinline{received} at the time of the snapshot and $\mathit{state}(p)$ the \lstinline{state} at the time of the snapshot.
+Let us name, for each process $p$, $\mathit{sent}(p)$ the list of messages \lstinline{sent} at the time of the snapshot, $\mathit{received}(p)$ the list \lstinline{received} at the time of the snapshot and $\mathit{state}(p)$ the \lstinline{state} at the time of the snapshot.
 We can build the global snapshot (a global state) as follow:
 
 Let $(P,C,E)$ a distributed system.\\
 Let $c=(p,q)\in C$. Let $CC$ such that $CC(c) = \mathit{sent}(p) - \mathit{received}(q)$.\\
 Let $p\in P$. Let $PC$ such that $PC(p)=\mathit{state}(p)$.
 
-The pair $(CC,PC)$ constitues the global snapshot returned by the algorithm.
+The pair $(CC,PC)$ constitutes the global snapshot returned by the algorithm.
 
 \section{An example}
 \q{Illustrate the behavior of the algorithm on a simple but typical example.}
@@ -112,11 +112,11 @@ The pair $(CC,PC)$ constitues the global snapshot returned by the algorithm.
 \section{Correctness proof}
 \q{Prove correctness of the algorithm in your formal setting.}
 
-For the algorithm to be correct, we want it to return a meaningful global snaphsot.
-According to \textbf{Theorem 3.1}, proved in the article, \textit{All feasible global snaphsots are meaningful}.
+For the algorithm to be correct, we want it to return a meaningful global snapshot.
+According to \textbf{Theorem 3.1}, proved in the article, \textit{All feasible global snapshots are meaningful}.
 Thus, it suffices to prove that the returned snapshot is feasible.
 
-To do so, it is engouh to prove the following:
+To do so, it is enough to prove the following:
 $$\forall c=(p,q)\in C, \forall m\in M,\quad m\in\mathit{received}(q)\Rightarrow m\in\mathit{sent}(p)$$
 
 Informally, it means that each received message in the snapshot has been sent in the snapshot. This corresponds to snapshots that are reachable global states of the distributed system.
@@ -134,7 +134,7 @@ Indeed, the snapshot is always taken right before the process turns red.
 It follows that $m\in\mathit{sent}(p)$.
 
 Thus, the global snapshot returned by the algorithm is feasible, and meaningful.
-In other words, each received message has been sent, and this has been captured in the snaphsot as expected.
+In other words, each received message has been sent, and this has been captured in the snapshot as expected.
 
 \section{Assumptions}
 \q{What are the assumptions for the algo to work properly ? what if one releases these assumptions ?}
@@ -153,7 +153,7 @@ If two same messages are sent along the same channel, only one will be received.
 \section{Added complexity}
 \q{What is the extra complexity due to the dropping the FIFO assumption, compared to Chandy-Lamport ?}
 
-When taking a local snaphsot, each process saves a copy of all sent and received messages.
+When taking a local snapshot, each process saves a copy of all sent and received messages.
 For a single process to build the global snapshot, these two lists must be sent.
 In Chandy-Lamport's algorithm, each process could locally compute the state of each incoming channel. The only control message required was a simple marker after each snapshot.
 
@@ -173,7 +173,7 @@ This way, we don't need to send all the previous history, but only some numbers 
 \q{Assuming a deadlock or a crash is detected, how should one resume computations from such a snapshot ?}
 
 After a deadlock or a crash has been detected, it suffices to restore each process and each channel to a previous snapshot.
-With a meaningful snapshot, each sent message has either been received, or is inside a channel, and each received message has been sent. This means that the distributed system can resume execution from there witout losing or duplicating any message.
+With a meaningful snapshot, each sent message has either been received, or is inside a channel, and each received message has been sent. This means that the distributed system can resume execution from there without losing or duplicating any message.
 Each snapshot corresponds to a reachable global state.
 
 
