@@ -118,7 +118,7 @@ Consider the following example:
 \end{figure}
 
 The system has 4 processes $p_1,p_2,p_3$ and $p_4$.
-To simplify, we consider only the 3 channels $c_1=(p_1,p_2)$, $c_2=(p_2,p_3)$ and $(c_4=(p_3,p_4)$.
+To simplify, we consider only the 3 channels $c_1=(p_1,p_2)$, $c_2=(p_2,p_3)$ and $c_4=(p_3,p_4)$.
 Of course, there needs to be more channels for the system to be strongly connected, but this will be enough for our example.
 You can see with messages $a$ and $b$ that the channels aren't required to be FIFOs.
 Messages $b,e,f$ and $g$ are colored red, while $a,c$ and $d$ are colored white.
@@ -204,7 +204,7 @@ Another extra complexity is the color of each message, but in most cases, adding
 \q{Does the algorithm simplify if channels are FIFO ?}
 
 If channels are FIFO, the number of messages can be enough to identify the state of the channels.
-For instance, if process $p$ has sent 12 messages along $c=(p,q)$ and p has received 8 at the time of the snapshot, then we know for sure that the 4 messages in the channel state are the 4 last ones.
+For instance, if process $p$ has sent 12 messages along $c=(p,q)$ and $q$ has received 8 at the time of the snapshot, then we know for sure that the 4 messages in the channel state are the 4 last ones.
 If we assume that every process can communicate with the one in charge of building the global snapshot $p_{global}$, then for a channel $c=(p,q)$, $q$ could send the number of messages received to $p_{global}$, which in turn sends this number to $p$. $p$ can then compute the state of $c$ in the snapshot and sends it to $p_{global}$.
 This way, we don't need to send all the previous history, but only some numbers and the part of the history that actually matters to build the global snapshot. This could be especially useful when taking series of snapshots.
 
