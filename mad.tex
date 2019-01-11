@@ -2,6 +2,7 @@
 \usepackage{fullpage}
 \usepackage{listings}
 \usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
 
 \lstset{language=C,
                 basicstyle=\ttfamily\footnotesize,
@@ -109,17 +110,42 @@ The pair $(CC,PC)$ constitutes the global snapshot returned by the algorithm.
 \section{An example}
 \q{Illustrate the behavior of the algorithm on a simple but typical example.}
 
+Consider the following example:
+\begin{figure}[!h]
+  \centering
+  \includegraphics[scale=0.15]{example.jpg}
+  \caption{An example execution of the algorithm}
+\end{figure}
+
+The system has 4 processes $p_1,p_2,p_3$ and $p_4$.
+To simplify, we consider only the 3 channels $c_1=(p_1,p_2)$, $c_2=(p_2,p_3)$ and $(c_4=(p_3,p_4)$.
+Of course, there needs to be more channels for the system to be strongly connected, but this will be enough for our example.
 You can see with messages $a$ and $b$ that the channels aren't required to be FIFOs.
-Both processes $p_1$ and $p_4$ decide spontaneously to take a snapshot.
-Process $p_2$ turns red and take a snapshot when receiving message $b$.
-Process $p_3$ does it when receiving message $d$.
-Define channels as follows:
-$c_1=(p_1,p_2), c_2=(p_2,p_3), c_3=(p_4,p_3), c_4=(p_2,p_1)$.
+Messages $b,e,f$ and $g$ are colored red, while $a,c$ and $d$ are colored white.
+Both processes $p_1$ and $p_3$ decide spontaneously to take a snapshot.
+Process $p_2$ turns red and take a snapshot when receiving message $b$ (and before processing it).
+Process $p_4$ does it when receiving message $e$ (and before processing it).
 
 The global snapshot is the pair $(CC,PC)$ where
-$CC(c_1)=\{a\}$
-$CC(c_2)=$...
+$PC(p_i)$ is the state of each $p_i$ at the time of its snapshot (not depicted here), and
+\begin{itemize}
+\item $CC(c_1)=\{a\}$
+\item $CC(c_2)=\{c\}$
+\item $CC(c_3)=\emptyset$
+\end{itemize}
 
+We get the following multisets at the time of each snapshot:
+\begin{itemize}
+\item $\mathit{sent}(p_1)=\{a\}$
+\item $\mathit{received}(p_1)=\emptyset$
+\item $\mathit{sent}(p_2)=\{c\}$
+\item $\mathit{received}(p_2)=\emptyset$
+\item $\mathit{sent}(p_3)=\{d\}$
+\item $\mathit{received}(p_3)=\emptyset$
+\item $\mathit{sent}(p_1)=\emptyset$
+\item $\mathit{received}(p_1)=\{d\}$
+\end{itemize}
+Notice that each sent message has either been received, or is captured by the $CC$ function.
 
 
 \section{Correctness proof}
