@@ -43,13 +43,13 @@ A \textit{distributed system} is a tuple $(P,C,E)$ such that:
 
 For a distributed system $(P,C,E)$, a \textit{global state} is a pair $(CC,PC)$ such that:
 \begin{itemize}
-\item $CC: C\rightarrow M^*$ is a function that associates to each channel its \textit{content}: a list of messages (that might contain duplicates).
+\item $CC: C\rightarrow M^*$ is a function that associates to each channel its \textit{content}: a multiset of messages (a set that might contain duplicates).
 \item $PC: P \rightarrow \mathcal{S}$ is a function that associates to each process its current state, such that for each $p\in P, PC(p)$ is a state of $p$.
 \end{itemize}
 
 An \textit{initial} state is a global state $(CC,PC)$ such that
 \begin{itemize}
-\item Forall $c\in C$, $CC(c)$ is the empty list.
+\item Forall $c\in C$, $CC(c)$ is the empty multiset.
 \item Forall $p=(S,S_{init})\in P, PC(p)=S_{init}$
 \end{itemize}
 
@@ -67,8 +67,8 @@ Finally, we can express the algorithm for each process as follows:
 \begin{lstlisting}
   color = white;
   state = s_init;
-  sent = [];
-  received = [];
+  sent = empty();
+  received = empty();
 
   if (color == white && spontaneous_choice) {
     color = red;
@@ -79,7 +79,7 @@ Finally, we can express the algorithm for each process as follows:
     if (c=(p,q)) { // outgoing event
       state = sp
       send (m + color, c); // mark the message with the current color
-      sent = m :: sent;
+      sent = m ++ sent;
     }
 
     if (c=(q,p)) { // receiving event
@@ -89,7 +89,7 @@ Finally, we can express the algorithm for each process as follows:
       }
       
       state = sp;
-      received = m :: received;
+      received = m ++ received;
     }
   }
 \end{lstlisting}
@@ -97,7 +97,7 @@ Finally, we can express the algorithm for each process as follows:
 Where \lstinline{spontaneous_choice} can be true randomly.
 The \lstinline{take_snapshot} method takes a local snapshot, i.e a copy of \lstinline{state}, \lstinline{sent} and \lstinline{received}. This is then sent to the process in charge of building the global snapshot.
 
-Let us name, for each process $p$, $\mathit{sent}(p)$ the list of messages \lstinline{sent} at the time of the snapshot, $\mathit{received}(p)$ the list \lstinline{received} at the time of the snapshot and $\mathit{state}(p)$ the \lstinline{state} at the time of the snapshot.
+Let us name, for each process $p$, $\mathit{sent}(p)$ the multiset of messages \lstinline{sent} at the time of the snapshot, $\mathit{received}(p)$ the multiset \lstinline{received} at the time of the snapshot and $\mathit{state}(p)$ the \lstinline{state} at the time of the snapshot.
 We can build the global snapshot (a global state) as follow:
 
 Let $(P,C,E)$ a distributed system.\\
@@ -108,6 +108,19 @@ The pair $(CC,PC)$ constitutes the global snapshot returned by the algorithm.
 
 \section{An example}
 \q{Illustrate the behavior of the algorithm on a simple but typical example.}
+
+You can see with messages $a$ and $b$ that the channels aren't required to be FIFOs.
+Both processes $p_1$ and $p_4$ decide spontaneously to take a snapshot.
+Process $p_2$ turns red and take a snapshot when receiving message $b$.
+Process $p_3$ does it when receiving message $d$.
+Define channels as follows:
+$c_1=(p_1,p_2), c_2=(p_2,p_3), c_3=(p_4,p_3), c_4=(p_2,p_1)$.
+
+The global snapshot is the pair $(CC,PC)$ where
+$CC(c_1)=\{a\}$
+$CC(c_2)=$...
+
+
 
 \section{Correctness proof}
 \q{Prove correctness of the algorithm in your formal setting.}
@@ -124,7 +137,7 @@ Let $c=(p,q)\in C$, let $m\in\mathit{received}(q)$.
 We first prove the following Lemma:\\
 \textbf{Lemma 1:} $m$ is colored white.
 
-As $m$ is in $\mathit{received}(q)$, it is enough to prove that, at the time of the snapshot, each message received was white. This holds because upon receiving a red message as a white process, the snapshot is taken before adding the message to the \lstinline{received} list.\\
+As $m$ is in $\mathit{received}(q)$, it is enough to prove that, at the time of the snapshot, each message received was white. This holds because upon receiving a red message as a white process, the snapshot is taken before adding the message to the \lstinline{received} multiset.\\
 \textbf{Lemma 2:} $m$ was sent when $p$ was white.
 
 We can clearly see in the algorithm that messages are sent with the current color of the process. As $m$ is white, $p$ was white when the message was sent.\\
@@ -148,13 +161,13 @@ Without this assumption, the snapshot might not contain all messages, but is sti
 However, when sending the local snapshots to the process in charge of building the global one, every message must reach its goal.
 
 \textbf{Different Messages.} In the article, a set is maintained to represent the messages in each channel.
-If two same messages are sent along the same channel, only one will be received. To avoid this issue, we used lists of messages (that can have duplicates) in our formalism.
+If two same messages are sent along the same channel, only one will be received. To avoid this issue, we used multisets of messages (that can have duplicates) in our formalism.
 
 \section{Added complexity}
 \q{What is the extra complexity due to the dropping the FIFO assumption, compared to Chandy-Lamport ?}
 
 When taking a local snapshot, each process saves a copy of all sent and received messages.
-For a single process to build the global snapshot, these two lists must be sent.
+For a single process to build the global snapshot, these two sets must be sent.
 In Chandy-Lamport's algorithm, each process could locally compute the state of each incoming channel. The only control message required was a simple marker after each snapshot.
 
 This could be an issue when taking series of snapshots. However, many properties only require sending the number of message sent, not the entire history.
